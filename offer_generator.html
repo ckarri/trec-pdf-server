@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ramchandra Realty — Offer Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0f0e0c;--surface:#1a1816;--surface2:#222018;
+  --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.14);
+  --gold:#c9974a;--gold2:#e8b96a;--gold-bg:rgba(201,151,74,0.10);--gold-border:rgba(201,151,74,0.30);
+  --text:#f2ede6;--text2:#a09880;--text3:#6b6355;
+  --green:#25D366;--red:#ff4444;--r:12px;--rs:8px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
+/* NAV */
+nav{background:rgba(15,14,12,0.97);border-bottom:1px solid var(--border);padding:0 1.5rem;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+.logo{font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:700;}
+.logo em{font-style:italic;color:var(--gold);}
+.nav-r{display:flex;align-items:center;gap:0.75rem;}
+.logout-btn{font-size:0.75rem;color:var(--text3);background:none;border:1px solid var(--border);padding:5px 12px;border-radius:var(--rs);cursor:pointer;display:none;}
+.logout-btn:hover{border-color:var(--border2);color:var(--text2);}
+
+/* LOGIN SCREEN */
+#login-screen{display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 60px);padding:1.5rem;}
+.login-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:2rem;width:100%;max-width:360px;text-align:center;}
+.login-card h2{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;margin-bottom:0.3rem;}
+.login-card p{font-size:0.83rem;color:var(--text2);margin-bottom:1.5rem;line-height:1.6;}
+.login-card input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.9rem;padding:10px 13px;outline:none;margin-bottom:0.75rem;}
+.login-card input:focus{border-color:var(--gold);}
+button.login-btn{width:100%;padding:11px;background:var(--gold);color:#1a1000;border:none;border-radius:var(--rs);font-family:'DM Sans',sans-serif;font-size:0.92rem;font-weight:700;cursor:pointer;}
+button.login-btn:hover{background:var(--gold2);}
+.login-err{font-size:0.78rem;color:var(--red);margin-top:0.5rem;display:none;}
+
+/* MAIN APP */
+#app{display:none;}
+
+/* HERO */
+.hero{padding:1.2rem 1.5rem;border-bottom:1px solid var(--border);background:linear-gradient(180deg,rgba(201,151,74,0.05) 0%,transparent 100%);}
+.hero h1{font-family:'Playfair Display',serif;font-size:clamp(1.2rem,2.5vw,1.7rem);font-weight:900;margin-bottom:0.2rem;}
+.hero h1 em{font-style:italic;color:var(--gold);}
+.hero p{color:var(--text2);font-size:0.82rem;}
+
+/* FLOW */
+.flow{display:flex;align-items:center;padding:0.6rem 1.5rem;border-bottom:1px solid var(--border);background:var(--surface);overflow-x:auto;}
+.fs{display:flex;align-items:center;gap:7px;padding:5px 12px;border-radius:20px;font-size:0.73rem;font-weight:500;color:var(--text3);white-space:nowrap;}
+.fs.active{background:var(--gold-bg);color:var(--gold);border:1px solid var(--gold-border);}
+.fs.done{color:var(--green);}
+.fn{width:18px;height:18px;border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:0.62rem;font-weight:700;flex-shrink:0;}
+.fs.active .fn{background:var(--gold);color:#1a1000;}
+.fs.done .fn{background:var(--green);color:#fff;}
+.fa{color:var(--text3);font-size:0.75rem;margin:0 3px;}
+
+/* CONTAINER */
+.con{max-width:1100px;margin:0 auto;padding:1.3rem;}
+.sp{display:none;}.sp.active{display:block;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:1.3rem;}
+.g21{display:grid;grid-template-columns:2fr 1fr;gap:1.3rem;}
+
+/* PANEL */
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:1.1rem;}
+.pt{font-size:0.68rem;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;color:var(--gold);margin-bottom:0.75rem;padding-bottom:0.35rem;border-bottom:1px solid var(--gold-border);}
+textarea{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.85rem;padding:0.8rem;line-height:1.65;resize:vertical;min-height:230px;outline:none;}
+textarea:focus{border-color:var(--gold);}
+textarea::placeholder{color:var(--text3);}
+.eg-btn{font-size:0.72rem;color:var(--gold);background:none;border:none;cursor:pointer;padding:0;margin-top:0.35rem;text-decoration:underline;}
+
+/* INFO CARDS */
+.ic{display:flex;flex-direction:column;gap:0.65rem;}
+.icard{background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:0.8rem;}
+.it{font-size:0.67rem;font-weight:600;color:var(--gold);margin-bottom:0.35rem;text-transform:uppercase;letter-spacing:0.05em;}
+.ib{font-size:0.75rem;color:var(--text2);line-height:1.65;}
+
+/* BUTTONS */
+button.gen{width:100%;padding:11px;background:var(--gold);color:#1a1000;border:none;border-radius:var(--rs);font-family:'DM Sans',sans-serif;font-size:0.92rem;font-weight:700;cursor:pointer;margin-top:0.85rem;display:flex;align-items:center;justify-content:center;gap:8px;}
+button.gen:hover{background:var(--gold2);}
+button.gen:disabled{opacity:0.5;cursor:not-allowed;}
+.think{display:none;align-items:center;gap:8px;padding:0.65rem;background:var(--gold-bg);border:1px solid var(--gold-border);border-radius:var(--rs);margin-top:0.65rem;font-size:0.8rem;color:var(--gold);}
+.think.on{display:flex;}
+.spin{width:14px;height:14px;border:2px solid var(--gold-border);border-top-color:var(--gold);border-radius:50%;animation:rot 0.8s linear infinite;flex-shrink:0;}
+@keyframes rot{to{transform:rotate(360deg);}}
+
+/* REVIEW */
+.sg{margin-bottom:0.9rem;}
+.sgt{font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--gold);margin-bottom:0.45rem;}
+.fr{display:flex;justify-content:space-between;align-items:center;padding:0.32rem 0;border-bottom:1px solid var(--border);gap:0.65rem;}
+.fr:last-child{border-bottom:none;}
+.fl{font-size:0.73rem;color:var(--text2);flex-shrink:0;min-width:120px;}
+input.ef{background:var(--surface2);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.77rem;padding:3px 6px;text-align:right;flex:1;min-width:0;outline:none;}
+input.ef:focus{border-color:var(--gold);}
+input.ef.miss{border-color:var(--red);background:rgba(255,68,68,0.05);}
+input.ef.calc{border-color:var(--gold-border);}
+.mb{background:rgba(255,68,68,0.08);border:1px solid rgba(255,68,68,0.2);border-radius:var(--rs);padding:0.65rem 0.85rem;margin-bottom:0.85rem;font-size:0.77rem;color:var(--red);line-height:1.6;}
+
+/* SIDEBAR */
+.sa{display:flex;flex-direction:column;gap:0.55rem;}
+button.sab{width:100%;padding:9px;border-radius:var(--rs);font-family:'DM Sans',sans-serif;font-size:0.8rem;font-weight:600;cursor:pointer;border:none;display:flex;align-items:center;justify-content:center;gap:6px;}
+button.sab.gold{background:var(--gold);color:#1a1000;}
+button.sab.gold:hover{background:var(--gold2);}
+button.sab.out{background:var(--surface2);color:var(--text2);border:1px solid var(--border);}
+button.sab.out:hover{border-color:var(--gold);color:var(--gold);}
+button.sab:disabled{opacity:0.5;cursor:not-allowed;}
+.cvbox{background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:0.75rem;margin-top:0.6rem;font-size:0.75rem;color:var(--text2);line-height:1.7;white-space:pre-wrap;max-height:170px;overflow-y:auto;}
+
+/* STEP 3 */
+.pst{text-align:center;padding:2.5rem 1rem;}
+.pst h3{font-family:'Playfair Display',serif;font-size:1.2rem;margin:0.75rem 0 0.4rem;}
+.pst p{font-size:0.82rem;color:var(--text2);line-height:1.6;margin-bottom:1.1rem;}
+.pa{display:flex;gap:0.6rem;justify-content:center;flex-wrap:wrap;}
+.errbox{background:rgba(255,68,68,0.08);border:1px solid rgba(255,68,68,0.3);border-radius:var(--rs);padding:0.85rem;margin-top:0.85rem;font-size:0.8rem;color:var(--red);line-height:1.6;max-width:460px;margin-left:auto;margin-right:auto;display:none;}
+.disc{background:rgba(201,151,74,0.04);border:1px solid var(--gold-border);border-radius:var(--rs);padding:0.7rem 1rem;margin-top:1rem;font-size:0.7rem;color:var(--text3);line-height:1.6;}
+.disc strong{color:var(--gold);display:block;margin-bottom:0.15rem;}
+
+@media(max-width:700px){.g2,.g21{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo"><em>Ramchandra</em> Realty — AI Offer Generator</div>
+  <div class="nav-r">
+    <button class="logout-btn" id="logout-btn" onclick="logout()">Logout</button>
+  </div>
+</nav>
+
+<!-- LOGIN SCREEN -->
+<div id="login-screen">
+  <div class="login-card">
+    <div style="font-size:2rem;margin-bottom:0.75rem;">🏡</div>
+    <h2>Ramchandra Realty</h2>
+    <p>AI Offer Generator — for licensed agents only.<br>Enter your brokerage password to continue.</p>
+    <input type="password" id="pw-input" placeholder="Enter brokerage password" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="login-btn" onclick="doLogin()">Access Offer Generator</button>
+    <div class="login-err" id="login-err">Incorrect password. Please try again.</div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app">
+  <div class="hero">
+    <h1>Type offer terms → <em>Download filled TREC PDFs</em></h1>
+    <p>AI extracts every field → Fills TREC 20-18 + Financing Addendum + HOA Addendum → One PDF download</p>
+  </div>
+  <div class="flow">
+    <div class="fs active" id="f1"><div class="fn">1</div>Enter Offer Terms</div>
+    <div class="fa">→</div>
+    <div class="fs" id="f2"><div class="fn">2</div>Review & Edit</div>
+    <div class="fa">→</div>
+    <div class="fs" id="f3"><div class="fn">3</div>Download TREC PDFs</div>
+  </div>
+
+  <div class="con">
+
+    <!-- STEP 1 -->
+    <div class="sp active" id="s1">
+      <div class="g2">
+        <div>
+          <div class="panel">
+            <div class="pt">Enter offer terms in plain English</div>
+            <textarea id="inp" placeholder="Type your offer terms here...
+
+Example:
+Offer on 5609 Beachmont Dr, Austin TX 78745. Sellers are Mike and Lisa Johnson. Buyers are John and Sarah Smith, married. Offering $485,000. Conventional loan, 5% down. Close in 21 days. Option 7 days at $150. Earnest $5,000 at Capital Title, 3801 N Capital of Texas Hwy Austin TX 78746. Title paid by seller. As-is. No HOA. Buyer agent Raj Patel, license 712345, Ramchandra Realty, 123 Main St Austin TX 78701, 512-555-1234, raj@ramchandra.com."></textarea>
+            <button class="eg-btn" onclick="fillEg()">Load example →</button>
+            <div class="think" id="think"><div class="spin"></div><span id="tt">Reading offer terms...</span></div>
+            <button class="gen" id="gbtn" onclick="go()">⚡ Extract Terms & Generate Contract</button>
+          </div>
+          <div class="disc" style="margin-top:1rem;"><strong>⚠ Agent Responsibility</strong>Review ALL fields before execution. AI-generated — not legal advice.</div>
+        </div>
+        <div class="ic">
+          <div class="icard">
+            <div class="it">What to include</div>
+            <div class="ib">• Property address + zip<br>• Seller name(s)<br>• Buyer name(s) + type<br>• Offer price<br>• Loan type + down payment %<br>• Closing timeline (days)<br>• Option period + fee<br>• Earnest money + title company<br>• Title paid by seller or buyer<br>• As-is or repair amount<br>• Your name, license #, brokerage</div>
+          </div>
+          <div class="icard">
+            <div class="it">Forms generated automatically</div>
+            <div class="ib">
+              <strong style="color:var(--gold);">Always:</strong><br>
+              ✓ TREC 20-18 Main Contract<br><br>
+              <strong style="color:var(--gold);">If financed (not cash):</strong><br>
+              ✓ TREC 40-11 Financing Addendum<br><br>
+              <strong style="color:var(--gold);">If HOA = yes:</strong><br>
+              ✓ TREC 36-10 HOA Addendum<br><br>
+              All merged into one PDF download.
+            </div>
+          </div>
+          <div class="icard">
+            <div class="it">Auto-filled with TX defaults</div>
+            <div class="ib">✓ Close 30 days | Option 7 days $100<br>✓ Earnest deposit within 3 days<br>✓ Seller pays title policy<br>✓ Seller furnishes existing survey<br>✓ As-Is condition<br>✓ 30yr loan | 10% rate cap | 3% origination<br>✓ Buyer approval 21 days<br>✓ HOA info delivered within 7 days</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div class="sp" id="s2">
+      <div class="g21">
+        <div>
+          <div id="mbanner"></div>
+          <div class="panel" id="rfields"></div>
+        </div>
+        <div>
+          <div class="panel">
+            <div class="pt">Generate Contract</div>
+            <div class="sa">
+              <button class="sab gold" id="dlbtn" onclick="dlPDF()">⬇ Download Filled TREC PDFs</button>
+              <button class="sab out" onclick="togCV()">✉ View Cover Letter</button>
+              <button class="sab out" onclick="cpTerms()">📋 Copy Terms</button>
+              <button class="sab out" onclick="gS(1)">← Edit Terms</button>
+            </div>
+            <div id="cvpanel" style="display:none;margin-top:0.7rem;">
+              <div class="pt" style="margin-top:0.4rem;">Cover Letter</div>
+              <div class="cvbox" id="cvtext"></div>
+              <button class="sab out" style="margin-top:0.45rem;" onclick="cpCV()">📋 Copy</button>
+            </div>
+            <div style="margin-top:0.8rem;padding-top:0.7rem;border-top:1px solid var(--border);font-size:0.72rem;color:var(--text2);line-height:1.8;">
+              <span style="color:var(--gold);">■</span> Gold = AI calculated<br>
+              <span style="color:var(--red);">■</span> Red = Missing — fill in<br><br>
+              All fields editable before downloading.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 3 -->
+    <div class="sp" id="s3">
+      <div class="panel">
+        <div class="pst">
+          <div style="font-size:2.5rem;" id="pico">⏳</div>
+          <h3 id="ptitle">Generating TREC Forms...</h3>
+          <p id="pmsg">Filling all fields in your TREC PDFs. Just a moment.</p>
+          <div class="pa" id="pacts" style="display:none;">
+            <button class="sab gold" style="width:auto;padding:10px 24px;" onclick="dlPDF()">⬇ Download Again</button>
+            <button class="sab out" style="width:auto;padding:10px 24px;" onclick="gS(2)">← Back to Review</button>
+          </div>
+          <div class="errbox" id="errbox"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ── CONFIG — UPDATE THIS AFTER RAILWAY DEPLOYS ─────────────────────────────
+// Replace with your Railway URL e.g. https://trec-server-production.up.railway.app
+var API = 'REPLACE_WITH_RAILWAY_URL';
+// ────────────────────────────────────────────────────────────────────────────
+
+var D = null;
+var SESSION_KEY = 'rr_offer_session';
+var EG = 'Offer on 5609 Beachmont Dr, Austin TX 78745. Sellers are Mike and Lisa Johnson. Buyers are John and Sarah Smith, married. Offering $485,000. Conventional loan, 5% down. Close in 21 days. Option 7 days at $150. Earnest $5,000 at Capital Title, 3801 N Capital of Texas Hwy Austin TX 78746. Title paid by seller. As-is. No HOA. Buyer agent Raj Patel, license 712345, Ramchandra Realty, 123 Main St Austin TX 78701, 512-555-1234, raj@ramchandra.com.';
+
+// ── SESSION ────────────────────────────────────────────────────────────────
+function getSession(){ return sessionStorage.getItem(SESSION_KEY); }
+function setSession(pw){ sessionStorage.setItem(SESSION_KEY, pw); }
+function clearSession(){ sessionStorage.removeItem(SESSION_KEY); }
+
+function doLogin(){
+  var pw = document.getElementById('pw-input').value;
+  if(!pw){ return; }
+  // Verify password against Railway server
+  fetch(API + '/ping', { headers: { 'X-Password': pw } })
+    .then(function(r){
+      if(r.status === 401){ showLoginErr(); return; }
+      setSession(pw);
+      showApp();
+    })
+    .catch(function(){
+      // If server is not reachable — still let them in, will fail at PDF gen
+      setSession(pw);
+      showApp();
+    });
+}
+
+function showLoginErr(){
+  var e = document.getElementById('login-err');
+  e.style.display = 'block';
+  setTimeout(function(){ e.style.display = 'none'; }, 3000);
+}
+
+function showApp(){
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  document.getElementById('logout-btn').style.display = 'block';
+}
+
+function logout(){
+  clearSession();
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('logout-btn').style.display = 'none';
+  document.getElementById('pw-input').value = '';
+  gS(1); D = null;
+}
+
+// Check if already logged in this session
+window.addEventListener('load', function(){
+  var pw = getSession();
+  if(pw){ showApp(); }
+  // Handle Enter key on login
+  document.getElementById('pw-input').addEventListener('keydown', function(e){
+    if(e.key === 'Enter') doLogin();
+  });
+});
+
+// ── STEPS ──────────────────────────────────────────────────────────────────
+function gS(n){
+  if(n>1 && !D) return;
+  document.querySelectorAll('.sp').forEach(function(p){ p.classList.remove('active'); });
+  document.getElementById('s'+n).classList.add('active');
+  ['f1','f2','f3'].forEach(function(id,i){
+    document.getElementById(id).classList.remove('active','done');
+    if(i+1<n) document.getElementById(id).classList.add('done');
+    if(i+1===n) document.getElementById(id).classList.add('active');
+  });
+}
+
+function fillEg(){ document.getElementById('inp').value = EG; }
+
+// ── AI EXTRACTION ──────────────────────────────────────────────────────────
+var TT=['Reading offer terms...','Extracting buyer and seller info...','Calculating loan amounts...','Computing dates...','Mapping to TREC fields...','Writing cover letter...'];
+var TI=0;
+
+async function go(){
+  var inp = document.getElementById('inp').value.trim();
+  if(!inp){ alert('Please enter your offer terms first.'); return; }
+  var btn = document.getElementById('gbtn'), th = document.getElementById('think');
+  btn.disabled = true; th.classList.add('on');
+  var ti = setInterval(function(){ TI=(TI+1)%TT.length; document.getElementById('tt').textContent=TT[TI]; }, 1800);
+  try{
+    var today = new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+    var p = 'You are a Texas real estate expert filling TREC form 20-18. Extract all offer terms and return ONLY valid JSON. No explanation.\n\nToday: '+today+'\n\nOffer:\n"'+inp+'"\n\nReturn:\n{"seller_name":"","buyer_name":"","buyer_type":"Individual or Married Couple or Entity","property_address":"street only","city":"","state":"TX","zip":"","county":"Austin=Travis,Cedar Park/Leander/Round Rock/Georgetown=Williamson,Kyle/Buda=Hays,Pflugerville/Manor=Travis,Dripping Springs=Hays","lot":"","block":"","subdivision":"","sales_price":"$485,000","sales_price_words":"four hundred eighty-five thousand and no/100 dollars","cash_portion":"calc","loan_amount":"calc","loan_type":"Conventional or FHA or VA or Cash","down_payment_pct":"5%","close_days":"30","close_date":"Month DD YYYY","option_days":"7","option_fee":"$100","option_expiry":"Month DD YYYY","earnest_money_amt":"MANDATORY","earnest_deposit_days":"3","title_company":"MANDATORY","title_company_address":"if mentioned","title_policy_paid_by":"Seller","hoa":"yes or no","hoa_name":"if mentioned","hoa_paid_by":"Seller","as_is":true,"repairs":"As-Is","special_provisions":null,"year_built":null,"buyer_agent_name":"MANDATORY","buyer_agent_license":"MANDATORY","buyer_broker_firm":"MANDATORY","buyer_broker_address":null,"buyer_broker_city":null,"buyer_broker_zip":null,"buyer_agent_email":null,"buyer_agent_phone":null,"buyer_broker_license":null,"listing_agent_name":null,"listing_agent_license":null,"listing_broker_firm":null,"listing_broker_address":null,"listing_broker_city":null,"listing_broker_zip":null,"listing_agent_email":null,"listing_agent_phone":null,"buyer_address":null,"buyer_phone":null,"buyer_email":null,"seller_address":null,"seller_phone":null,"seller_email":null,"home_warranty_amt":null,"missing_fields":["critical missing fields only"],"cover_letter":"warm 3-paragraph buyer cover letter"}';
+
+    var res = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:2000,messages:[{role:'user',content:p}]})
+    });
+    var dat = await res.json();
+    var m = dat.content[0].text.match(/\{[\s\S]*\}/);
+    if(!m) throw new Error('Could not parse AI response');
+    D = JSON.parse(m[0]);
+    clearInterval(ti); th.classList.remove('on'); btn.disabled=false;
+    renderRev(D); gS(2);
+  }catch(e){
+    clearInterval(ti); th.classList.remove('on'); btn.disabled=false;
+    alert('Error: '+e.message); console.error(e);
+  }
+}
+
+// ── REVIEW ─────────────────────────────────────────────────────────────────
+function renderRev(d){
+  var miss = d.missing_fields||[];
+  document.getElementById('mbanner').innerHTML = miss.length ? '<div class="mb"><strong>⚠ Fill in missing fields:</strong> '+miss.join(' · ')+'</div>' : '';
+  function ef(lbl,key,type){
+    var val=String(d[key]||''); var cls=!val?'miss':(type==='calc'?'calc':'');
+    return '<div class="fr"><span class="fl">'+lbl+'</span><input class="ef '+cls+'" data-key="'+key+'" value="'+val.replace(/"/g,'&quot;')+'" placeholder="Enter..." oninput="upd(this)"></div>';
+  }
+  var h='';
+  h+='<div class="sg"><div class="sgt">🏠 Property</div>'+ef('Address','property_address')+ef('City','city')+ef('County','county','calc')+ef('Zip','zip')+'</div>';
+  h+='<div class="sg"><div class="sgt">👥 Parties</div>'+ef('Seller Name(s)','seller_name')+ef('Buyer Name(s)','buyer_name')+ef('Buyer Type','buyer_type')+'</div>';
+  h+='<div class="sg"><div class="sgt">💰 Price & Financing</div>'+ef('Sales Price','sales_price')+ef('Price in Words','sales_price_words','calc')+ef('Loan Type','loan_type')+ef('Down Payment %','down_payment_pct')+ef('Cash at Closing','cash_portion','calc')+ef('Loan Amount','loan_amount','calc')+'</div>';
+  h+='<div class="sg"><div class="sgt">📅 Key Dates</div>'+ef('Closing Date','close_date','calc')+ef('Option Days','option_days')+ef('Option Fee','option_fee')+ef('Option Expires','option_expiry','calc')+ef('Earnest Money','earnest_money_amt')+ef('Deposit Days','earnest_deposit_days')+'</div>';
+  h+='<div class="sg"><div class="sgt">📋 Terms</div>'+ef('Title Company','title_company')+ef('Title Address','title_company_address')+ef('Title Paid By','title_policy_paid_by')+ef('HOA','hoa')+ef('HOA Name / Phone','hoa_name')+ef('Condition','repairs')+'</div>';
+  if(d.special_provisions){ h+='<div class="sg"><div class="sgt">📝 Special Provisions</div><div style="font-size:0.78rem;color:var(--text2);padding:0.35rem 0;line-height:1.6;">'+d.special_provisions+'</div></div>'; }
+  h+='<div class="sg"><div class="sgt">🏢 Buyer Agent & Broker</div>'+ef('Agent Name','buyer_agent_name')+ef('License #','buyer_agent_license')+ef('Brokerage','buyer_broker_firm')+ef('Phone','buyer_agent_phone')+ef('Email','buyer_agent_email')+ef('Address','buyer_broker_address')+ef('City','buyer_broker_city')+ef('Zip','buyer_broker_zip')+'</div>';
+  document.getElementById('rfields').innerHTML = h;
+  if(d.cover_letter) document.getElementById('cvtext').textContent = d.cover_letter;
+}
+
+function upd(el){ if(D) D[el.dataset.key]=el.value; el.className='ef'+(el.value?'':' miss'); }
+function togCV(){ var p=document.getElementById('cvpanel'); p.style.display=p.style.display==='none'?'block':'none'; }
+function cpCV(){ navigator.clipboard.writeText(document.getElementById('cvtext').textContent).then(function(){alert('Copied!');}); }
+function cpTerms(){
+  if(!D) return;
+  var d=D;
+  var t=['OFFER TERMS — TREC Package','==========================','Property: '+(d.property_address||'')+', '+(d.city||'')+', TX '+(d.zip||''),'Seller: '+(d.seller_name||''),'Buyer: '+(d.buyer_name||''),'','Sales Price: '+(d.sales_price||''),'Loan: '+(d.loan_type||'')+' '+(d.down_payment_pct||'')+' down | Cash: '+(d.cash_portion||'')+' | Loan: '+(d.loan_amount||''),'','Closing: '+(d.close_date||''),'Option: '+(d.option_days||'')+' days at '+(d.option_fee||'')+' | Expires: '+(d.option_expiry||''),'Earnest: '+(d.earnest_money_amt||'')+' within '+(d.earnest_deposit_days||'3')+' days at '+(d.title_company||''),'','Title: '+(d.title_policy_paid_by||'') +' pays | HOA: '+(d.hoa||''),'Condition: '+(d.repairs||''),'','Agent: '+(d.buyer_agent_name||'')+' #'+(d.buyer_agent_license||''),'Brokerage: '+(d.buyer_broker_firm||'')].join('\n');
+  navigator.clipboard.writeText(t).then(function(){alert('Copied!');});
+}
+
+// ── PDF DOWNLOAD ────────────────────────────────────────────────────────────
+async function dlPDF(){
+  if(!D){ alert('No offer data.'); return; }
+  var pw = getSession();
+  if(!pw){ logout(); return; }
+
+  var btn = document.getElementById('dlbtn');
+  btn.disabled=true; btn.textContent='Generating PDFs...';
+  gS(3);
+  document.getElementById('pico').textContent='⏳';
+  document.getElementById('ptitle').textContent='Generating TREC Forms...';
+  document.getElementById('pmsg').textContent='Filling all fields in your TREC PDFs.';
+  document.getElementById('pacts').style.display='none';
+  document.getElementById('errbox').style.display='none';
+
+  try{
+    var res = await fetch(API + '/fill-pdf', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','X-Password':pw},
+      body: JSON.stringify(D)
+    });
+    if(res.status === 401){ logout(); return; }
+    if(!res.ok){
+      var e = await res.json();
+      throw new Error(e.error || 'Server error ' + res.status);
+    }
+    var formsIncluded = res.headers.get('X-Forms-Included') || 'TREC forms';
+    var blob = await res.blob();
+    var fname = 'TREC_'+(D.property_address||'Offer').replace(/[^a-zA-Z0-9]/g,'_').slice(0,25)+'.pdf';
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a'); a.href=url; a.download=fname;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    document.getElementById('pico').textContent='✅';
+    document.getElementById('ptitle').textContent='Download Complete!';
+    document.getElementById('pmsg').innerHTML='<strong style="color:var(--green);">'+formsIncluded+'</strong><br><br>Downloaded to your computer.<br><span style="color:var(--gold)">Review all fields carefully before signing.</span>';
+    document.getElementById('pacts').style.display='flex';
+  }catch(e){
+    document.getElementById('pico').textContent='❌';
+    document.getElementById('ptitle').textContent='Error';
+    document.getElementById('pmsg').textContent='Could not generate PDF:';
+    document.getElementById('errbox').style.display='block';
+    document.getElementById('errbox').innerHTML='<strong>'+e.message+'</strong><br><br>Please try again or contact your admin.';
+    document.getElementById('pacts').style.display='flex';
+  }
+  btn.disabled=false; btn.textContent='⬇ Download Filled TREC PDFs';
+}
+</script>
+</body>
+</html>
